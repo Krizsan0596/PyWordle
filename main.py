@@ -34,7 +34,6 @@ def game(difficulty:int):
         word = random.choice(WORDS).decode("utf-8").lower()
         if len(word) == difficulty:
             break
-    print(word)
     while True:
         guess = get_input(difficulty)
         guess_count += 1
