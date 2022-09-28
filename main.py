@@ -2,6 +2,7 @@ from time import sleep
 from colorama import init, Fore, Back, Style
 import requests
 import random
+import sys
 
 
 init(autoreset=True)
@@ -16,24 +17,48 @@ def get_input(length):
         return get_input(length)
     return inp
 
-def main():             #Add guess limit? Maybe
+def main():
     while True:
-        difficulty = int(input("How long should the word be? (3 - 10)\n>"))
+        difficulty = input("How long should the word be? (" + Fore.RED + "3 - 10" + Fore.WHITE + ")[" + Fore.CYAN +"Q for defaults" + Fore.WHITE +  "]\n>")
+        if difficulty.upper() == "D":
+            game(5, 0, True)
+        elif difficulty.upper() == "Q":
+            game(5, 5)
+        difficulty = int(difficulty)
         if not(difficulty < 3 or difficulty > 10):
             break
-    game(difficulty)
+    while True:
+        guesses = int(input("How many guesses would you like?(" + Fore.RED +"<15 or 0 for infinite" + Fore.WHITE + ")\n>"))
+        if guesses < 15:
+            break
+    game(difficulty, guesses)
     
 word_site = "https://raw.githubusercontent.com/dwyl/english-words/master/words.txt"  #https://www.mit.edu/~ecprice/wordlist.10000
 response = requests.get(word_site)
 WORDS = response.content.splitlines()
 
+def game_over(word:str):
+    print("\nYou ran out of guesses! Better luck next time!\nYour word was:")
+    for i in word:
+        print(Fore.RED + i, end='')
+        sleep(0.1)
+    play_again = input(Fore.CYAN + "\nWould you like to play again? [Y]es/[N]o/[C]hange difficulty\n>" + Fore.WHITE)
+    if play_again.upper() == "Y":
+        game(len(word))
+    elif play_again.upper() == "C":
+        main()
+    elif play_again.upper() == "N":
+        sys.exit()
 
-def game(difficulty:int):
+
+def game(difficulty:int, guess_limit:int, debug:bool=False):
     guess_count = 0
     while True:
         word = random.choice(WORDS).decode("utf-8").lower()
         if len(word) == difficulty:
             break
+    if debug:
+        print(word)
     while True:
         guess = get_input(difficulty)
         guess_count += 1
@@ -60,6 +85,15 @@ def game(difficulty:int):
                     print(Fore.YELLOW + x, end='')
             else:
                 print(Fore.WHITE + x, end='')
+        if guess_limit != 0:
+            if guess_count >= guess_limit:
+                game_over(word)
+            rem_guess = "\n{} guess{} remaining."
+            if guess_limit - guess_count == 1:
+                rem_guess = rem_guess.format("1", "")
+            else:
+                rem_guess = rem_guess.format(guess_limit - guess_count, "es")
+            print(rem_guess)
 
     #print(Fore.GREEN + "\nCongratulations!")
     win_txt = "\nCongratulations!"
@@ -80,5 +114,7 @@ def game(difficulty:int):
         game(difficulty)
     elif play_again.upper() == "C":
         main()
+    elif play_again.upper() == "N":
+        sys.exit()
 
 main()
