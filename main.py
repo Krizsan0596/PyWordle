@@ -62,14 +62,6 @@ def game(difficulty:int, guess_limit:int, debug:bool=False):
     while True:
         guess = get_input(difficulty)
         guess_count += 1
-    #    if guess.encode("utf-8") not in WORDS:
-    #        print(Fore.RED + "That is not a valid english word.")
-    #        continue
-    #    print(guess_list)
-    #    for letter in guess_list:
-    #        if letter not in word_list:
-    #            print(Fore.WHITE + letter, end="")
-    #            continue
         match = [a==b for a,b in zip(guess, word)]
         if all(match):
             print("\n")
@@ -96,22 +88,22 @@ def game(difficulty:int, guess_limit:int, debug:bool=False):
             print(rem_guess)
 
     #print(Fore.GREEN + "\nCongratulations!")
-    win_txt = "\nCongratulations!"
+    win_txt = "Congratulations!"
+    win_txt += "\nYou guessed {guess_count} times.".format(guess_count=guess_count)
+    if guess_count < 5:
+        win_txt = "Impressive! Only {guess_count} guesses.".format(guess_count=guess_count)
+    if guess_count < 3:
+        win_txt = "Amazing! Less than 3 guesses. ({guess_count})".format(guess_count=guess_count)
+    if guess_count == 1:
+        win_txt = "Come on! You have got to be cheating!"
+    print("\n")
     win_txt = list(win_txt)
     for i in win_txt:
         print(Fore.GREEN + i, end='')
         sleep(0.05)
-    guess_txt = "You guessed {guess_count} times.".format(guess_count=guess_count)
-    if guess_count < 5:
-        guess_txt = "Impressive! Only {guess_count} guesses.".format(guess_count=guess_count)
-    if guess_count < 3:
-        guess_txt = "Amazing! Less than 3 guesses. ({guess_count})".format(guess_count=guess_count)
-    if guess_count == 1:
-        guess_txt = "Come on! You have got to be cheating!"
-    print("\n" + guess_txt)
     play_again = input(Fore.CYAN + "\nWould you like to play again? [Y]es/[N]o/[C]hange difficulty\n>" + Fore.WHITE)
     if play_again.upper() == "Y":
-        game(difficulty)
+        game(difficulty, guess_limit)
     elif play_again.upper() == "C":
         main()
     elif play_again.upper() == "N":
